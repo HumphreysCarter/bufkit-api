@@ -1,5 +1,5 @@
 # BUFKIT Data API
-A Python interface to ingesting and reading BUFKIT BUFR files.
+A simple Python interface to ingesting and reading BUFKIT BUFR files.
 
 ## Installation
 
@@ -14,7 +14,7 @@ python setup.py install
 ## Dependencies
 
 ### Required
-* Python 3.7 or higher
+* Python 3.9 or higher
 * metpy
 
 ## Usage
@@ -30,7 +30,7 @@ Online files are read by calling ingest, and passing the ```station``` and ```mo
 ```
 from bufkit import ingest
 
-file = ingest('KFLG', 'GFS')
+bufr_file = ingest('KFLG', 'GFS')
 ```
 
 The optional ```time``` argument can also be passed to ingest a file for a given model run time.
@@ -38,7 +38,7 @@ The optional ```time``` argument can also be passed to ingest a file for a given
 from bufkit import ingest
 from datetime import datetime
 
-file = ingest('KFLG', 'HRRR', time=datetime(2021, 9, 10, 18)
+bufr_file = ingest('KFLG', 'HRRR', time=datetime(2021, 9, 10, 18)
 ```
 
 #### Retrieving Data
@@ -50,10 +50,10 @@ Data files can be parsed for surface data and/or the upper-air and sounding data
 Calling surface and passing the ingested file data parses the file for surface data.
 ```
 from bufkit import surface
-sfc = surface(file.data)
+surface_data = surface(bufr_file)
 ```
 
-A Pandas Dataframe can then be returned by calling ```sfc.df```.
+The ```surface_data``` variable will then return a Pandas DataFrame object.
 
 ```
         STN                TIME    PMSL   PRES   SKTC   STC1  EVAP  P03M  C03M  SWEM  LCLD  MCLD  HCLD  UWND  VWND   T2MS  Q2MS  WXTS  WXTP  WXTZ  WXTR  S03M  TD2M
@@ -78,10 +78,10 @@ Calling sounding and passing the ingested file data parses the file for the derv
 
 ```
 from bufkit import sounding
-sdg = sounding(file.data)
+sounding_data = sounding(bufr_file)
 ```
 
-A Pandas Dataframe can then be returned by calling ```sdg.df```.
+The ```sounding_data``` variable will then return a Pandas DataFrame object.
 ```
      STID    STNM                TIME   SLAT    SLON    SELV   STIM  SHOW  LIFT  SWET  KINX    LCLP   PWAT  TOTL   CAPE    LCLT   CINS    EQLV    LFCT   BRCH                                            PROFILE
 0    KFLG  723755 2021-09-10 18:00:00  35.13 -111.67  2137.0    0.0   NaN  1.67   NaN   NaN  576.73  13.74   NaN  44.53  271.93  -1.02  294.39  578.85   2.36       PRES   TMPC     TMWC    DWPC     THTE    ...
@@ -99,7 +99,7 @@ A Pandas Dataframe can then be returned by calling ```sdg.df```.
 [140 rows x 21 columns]
 ```
 
-The upper-air profile is returned from the dataframe under the ```PROFILE``` header, returning a list of each profile in time. Each time step in the file can be view with the ```sdg.df.PROFILE[0]``` call.
+The upper-air profile is returned from the dataframe under the ```PROFILE``` header, returning a list of each profile in time. A DataFrame for each time step in the file can be viewed by calling ```sounding_data.PROFILE[0]```, and incrementing the index based on the desired time step.
 ```
      PRES   TMPC     TMWC    DWPC     THTE    DRCT   SKNT  OMEG      HGHT
 0   782.5  23.54    11.61    3.03   338.09  165.47   5.42 -0.39   2138.12
@@ -119,14 +119,14 @@ The upper-air profile is returned from the dataframe under the ```PROFILE``` hea
 
 ### Utilities
 
-#### Unit Retrevial
+#### Unit Retrieval
 Units of any variable in the data files can be retrieved from the ```bufkit.util.units``` class. The value returned is a MetPy unit object. Unit key is based on http://www.meteo.psu.edu/bufkit/bufkit_parameters.txt.
 
 ```
 from bufkit.util import units
-u = units('CAPE').unit
+units('CAPE')
 ```
-
+Which will output:
 ```
 joule / kilogram
 ```
